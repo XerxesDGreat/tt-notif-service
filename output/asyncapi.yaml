@@ -1,0 +1,39 @@
+asyncapi: '2.4.0'
+info:
+  title: Notification Service
+  version: '0.1.0'
+  description: Service responsible for sending push notifications
+servers:
+  demo:
+    protocol: kafka
+    url: localhost:9092
+channels:
+  tripBooked:
+    description: Channel used when a trip has been booked
+    subscribe:
+      bindings:
+        kafka:
+          groupId: booking-group
+      operationId: handleTripBooked
+      message:
+        name: tripBookedMessage
+        title: Trip Booked Message
+        description: An event describing that a trip was just booked
+        schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
+        payload:
+          # using the github link
+          $ref: 'https://raw.githubusercontent.com/XerxesDGreat/tt-shared-schemas/main/messages/tripBooked.avsc'
+  metricsEventTriggered:
+    description: Channel used for publishing event metrics
+    publish:
+      bindings:
+        kafka:
+          groupId: metrics-group
+      operationId: publishMetric
+      message:
+        name: metricsEventMessage
+        title: Metrics Event Message
+        description: An event containing metrics to be recorded
+        schemaFormat:  'application/vnd.apache.avro;version=1.9.0'
+        payload:
+          $ref: 'https://raw.githubusercontent.com/XerxesDGreat/tt-shared-schemas/main/messages/eventMetric.avsc'
