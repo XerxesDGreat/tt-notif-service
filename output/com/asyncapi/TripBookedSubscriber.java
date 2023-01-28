@@ -29,9 +29,11 @@ import com.asyncapi.ConnectionHelper;
 import com.asyncapi.LoggingHelper;
 import com.asyncapi.Connection;
 import com.asyncapi.PubSubBase;
+import com.asyncapi.MetricsEventTriggeredProducer;
 
 import com.asyncapi.models.ModelContract;
 import com.asyncapi.models.TripBookedMessage;
+import com.asyncapi.models.MetricsEventMessage;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -40,6 +42,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 public class TripBookedSubscriber  extends PubSubBase{
 
   private KafkaConsumer consumer = null;
+  private MetricsEventTriggeredProducer metricsProducer = null;
     
   public TripBookedSubscriber() {
     
@@ -50,7 +53,7 @@ public class TripBookedSubscriber  extends PubSubBase{
       this.createConnection("tripBooked", id);
 
       consumer = ch.createConsumer("tripBooked");
-  
+      metricsProducer = new MetricsEventTriggeredProducer();
   }
   public void receive(int requestTimeout) {
     boolean continueProcessing = true;
@@ -70,11 +73,17 @@ public class TripBookedSubscriber  extends PubSubBase{
                 * Implement your business logic to handle
                 * received messages here.
                 */
+                sendMetric(receivedObject.toString());
             }
         } catch (Exception ex) {
             recordFailure(ex);
         }
     }
+  }
+
+  private void sendMetric(String metricValue) {
+    MetricsEventMessage msg = new MetricsEventMessage(123, "notifSent", metricValue);
+    metricsProducer.send(msg);
   }
   
   public void close() {

@@ -37,4 +37,7 @@ public class TripBookedMessage  extends ModelContract{
   public TripBookedMessage() {
     super();
   }
+  public String toString() {
+    return "TripBooked,guest:" + String.valueOf(this.guestId) + ",vehicle:" + String.valueOf(this.vehicleId);
+  }
 }
